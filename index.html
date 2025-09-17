@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Дашборд оператора</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+  <div class="brand">
+    <div class="logo">🎧</div>
+    <div>
+      <div class="site">Дашборд оператора</div>
+      <div class="subtitle">Оператор контактного центра</div>
+    </div>
+  </div>
+  <div style="display: flex; gap: 10px; align-items: center;">
+    <div class="quick-buttons" style="display: flex; gap: 8px;">
+      <button id="repeat-call" class="btn ghost" style="font-size: 13px; padding: 8px 12px;">Повторное обращение</button>
+      <button id="agent-not-contacted" class="btn ghost" style="font-size: 13px; padding: 8px 12px;">Агент не связался</button>
+    </div>
+    <button id="theme-toggle" class="theme-toggle btn ghost">🌙</button>
+  </div>
+</header>
+	
+	
+
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-target="#tab1" role="tab" aria-selected="true">Сбой ТНЛ</button>
+      <button class="tab" data-target="#tab2" role="tab" aria-selected="false">Отклик по вакансии</button>
+      <button class="tab" data-target="#tab3" role="tab" aria-selected="false">Жалоба / Снять ОН</button>
+      <button class="tab" data-target="#tab4" role="tab" aria-selected="false">ОН не найден</button>
+    </nav>
+
+    <!-- TAB 1 -->
+    <section class="card tab-panel show" id="tab1" role="tabpanel">
+      <h2>Сбой ТНЛ</h2>
+      <p class="description">В случае сбоя заполняйте параметры звонка и добавляйте записи в отчёт. После завершения сбоя выгрузите отчёт в Excel.</p>
+      <form id="form-failure" class="grid" autocomplete="off">
+        <div class="field col-6">
+          <label class="required">Имя клиента</label>
+          <input name="clientName" placeholder="Иван Иванов" required>
+        </div>
+        <div class="field col-6">
+          <label class="required">Номер клиента</label>
+          <input name="clientPhone" placeholder="+7 (900) 123-45-67" required>
+        </div>
+
+        <div class="field col-6">
+          <label>Адрес объекта недвижимости</label>
+          <input name="address" placeholder="г. Москва, ул. Ленина, д. 1">
+        </div>
+        <div class="field col-6">
+          <label>Артикул</label>
+          <input name="article" placeholder="АРТ.1234">
+        </div>
+
+        <div class="field col-4">
+          <label>Стоимость</label>
+          <div style="display:flex; gap:8px;">
+            <input name="price" placeholder="3 500" style="flex:1">
+            <select name="priceUnit" style="width:110px;">
+              <option value="">— ед. —</option>
+              <option value="тыс">тыс</option>
+              <option value="млн">млн</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field col-4">
+          <label>ФИО агента</label>
+          <input name="agentName" placeholder="Петров П.П.">
+        </div>
+
+        <div class="field col-4">
+          <label class="required">Агент или клиент</label>
+          <div class="radio-row">
+            <label><input type="radio" name="role" value="Агент" required> Агент</label>
+            <label><input type="radio" name="role" value="Клиент" required> Клиент</label>
+          </div>
+        </div>
+
+        <div class="field col-6">
+          <label>Источник звонка</label>
+          <select name="source" id="sourceSelect">
+            <option value="ГородУлица" selected>ГородУлица</option>
+            <option value="Баннер">Баннер</option>
+            <option value="Пенза баннер">Пенза баннер</option>
+            <option value="Звонок с карт">Звонок с карт</option>
+            <option value="Звонок с авито">Звонок с авито</option>
+            <option value="Др.источники">Др.источники</option>
+          </select>
+        </div>
+
+        <div class="field col-6 hidden" id="bannerNameField">
+          <label>Название баннера</label>
+          <input name="bannerName" placeholder="Название баннера">
+        </div>
+        <div class="field col-6 hidden" id="cityField">
+          <label>Город и улица</label>
+          <input name="cityStreet" placeholder="Город и улица">
+        </div>
+        <div class="field col-6 hidden" id="streetField">
+          <label>Улица</label>
+          <input name="street" placeholder="Улица">
+        </div>
+        <div class="field col-6 hidden" id="avitoLinkField">
+          <label>Ссылка с авито</label>
+          <input name="avitoLink" placeholder="https://www.avito.ru/...">
+        </div>
+
+        <div class="field col-6">
+          <label>Тип заявки</label>
+          <select name="requestType" id="requestType">
+            <option value="Покупка/аренда конкретного ОН" selected>Покупка/аренда конкретного ОН</option>
+            <option value="Покупка.Подбор">Покупка.Подбор</option>
+            <option value="Аренда.Подбор">Аренда.Подбор</option>
+            <option value="Продажа/сдача.Подбор">Продажа/сдача.Подбор</option>
+            <option value="Ипотека">Ипотека</option>
+          </select>
+        </div>
+
+        <!-- Dynamic blocks for requestType -->
+        <div id="typeDetails" class="col-12"></div>
+
+        <div class="col-12 actions">
+          <button type="button" id="addToReport" class="btn primary">Добавить запись в отчёт</button>
+        </div>
+      </form>
+
+      <details class="report">
+        <summary>Отчёт по сбою — <span id="reportCount">0 записей</span></summary>
+        <div class="report-actions">
+          <button id="downloadExcel" class="btn success">Скачать отчёт (Excel)</button>
+          <button id="clearReport" class="btn danger light">Очистить отчёт</button>
+        </div>
+        <div id="reportList" class="report-list"></div>
+      </details>
+    </section>
+
+    <!-- TAB 2 -->
+    <section class="card tab-panel" id="tab2" role="tabpanel" aria-hidden="true">
+      <h2>Отклик по вакансии</h2>
+      <form id="form-vacancy" class="grid" autocomplete="off">
+        <div class="field col-6">
+          <label class="required">Имя</label>
+          <input name="name" placeholder="Имя" required>
+        </div>
+        <div class="field col-6">
+          <label class="required">Номер</label>
+          <input name="phone" placeholder="+7 (900) 123-45-67" required>
+        </div>
+        <div class="col-12 actions">
+          <button type="button" id="copyVacancy" class="btn primary">Скопировать</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- TAB 3 -->
+    <section class="card tab-panel" id="tab3" role="tabpanel" aria-hidden="true">
+      <h2>Жалоба / Снять ОН</h2>
+      <form id="form-complaint" class="grid" autocomplete="off">
+        <div class="field col-12">
+          <div class="radio-row pill">
+            <label><input type="radio" name="mode" value="complaint" checked> Жалоба</label>
+            <label><input type="radio" name="mode" value="remove"> Снять ОН</label>
+          </div>
+        </div>
+        <div class="field col-6"><label>Имя клиента</label><input name="cname" placeholder="Имя"></div>
+        <div class="field col-6"><label>Телефон клиента</label><input name="cphone" placeholder="+7 (900) 123-45-67"></div>
+        <div class="field col-6"><label>ФИО агента</label><input name="aname" placeholder="ФИО агента"></div>
+        <div class="field col-6"><label>Офис агента</label><input name="aoffice" placeholder="Название офиса"></div>
+
+        <div class="field col-12" id="complaintTextField">
+          <label>Суть жалобы</label>
+          <textarea name="ctext" rows="3" placeholder="Опишите суть жалобы"></textarea>
+        </div>
+        <div class="field col-12 hidden" id="addressOnField">
+          <label>Адрес ОН</label>
+          <input name="onaddr" placeholder="Адрес объекта недвижимости, которое нужно снять с продажи">
+        </div>
+
+        <div class="col-12 actions">
+          <button type="button" id="copyComplaint" class="btn primary">Сформировать текст и скопировать</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- TAB 4 -->
+    <section class="card tab-panel" id="tab4" role="tabpanel" aria-hidden="true">
+      <h2>ОН не найден в ТНЛ</h2>
+      <form id="form-notfound" class="grid" autocomplete="off">
+        <div class="field col-4">
+          <label>Адрес</label>
+          <input name="addr" placeholder="Адрес">
+        </div>
+        <div class="field col-4">
+          <label>Стоимость</label>
+          <div style="display:flex; gap:8px;">
+            <input name="cost" placeholder="3 500" style="flex:1">
+            <select name="costUnit" style="width:110px;">
+              <option value="">— ед. —</option>
+              <option value="тыс">тыс</option>
+              <option value="млн">млн</option>
+            </select>
+          </div>
+        </div>
+        <div class="field col-4">
+          <label>Ссылка (необязательно)</label>
+          <input name="link" placeholder="https://www.avito.ru/...">
+        </div>
+
+        <div class="col-12 actions">
+          <button type="button" id="copyNotFound" class="btn primary">Сформировать текст и скопировать</button>
+        </div>
+      </form>
+    </section>
+
+  </div>
+
+  <div id="toast"></div>
+
+  <!-- SheetJS for Excel export (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
