@@ -64,6 +64,12 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   tabs.forEach(tab => tab.addEventListener('click', () => {
+    // Special handling for the "Исход" tab
+    if (tab.dataset.target === '#tab5') {
+      toast('Скоро!');
+      return;
+    }
+    
     // Remove active class from all tabs
     tabs.forEach(t => t.classList.remove('active'));
     
@@ -182,10 +188,14 @@ document.addEventListener('DOMContentLoaded', function() {
   const addressField = formFields[2]; // 3rd field (0-indexed)
   const articleField = formFields[3]; // 4th field
   const priceField = formFields[4];   // 5th field
+  // Get reference to the role selector field (6th field)
+  const roleField = formFields[5];
 
   // Initialize with default state - show specific ON fields
   function updateSpecificOnFieldsVisibility() {
     const showFields = requestType.value === 'Покупка/аренда конкретного ОН';
+    const showRoleField = requestType.value === 'Покупка/аренда конкретного ОН';
+    
     if (showFields) {
       addressField.classList.remove('hidden');
       articleField.classList.remove('hidden');
@@ -194,6 +204,13 @@ document.addEventListener('DOMContentLoaded', function() {
       addressField.classList.add('hidden');
       articleField.classList.add('hidden');
       priceField.classList.add('hidden');
+    }
+    
+    // Show/hide role field based on request type
+    if (showRoleField) {
+      roleField.classList.remove('hidden');
+    } else {
+      roleField.classList.add('hidden');
     }
   }
 
@@ -223,24 +240,50 @@ document.addEventListener('DOMContentLoaded', function() {
       typeDetails.insertAdjacentHTML('beforeend', `<div class="field col-2"><label>Комнат</label><input name="saleRooms" placeholder="Комнат"></div>`);
       typeDetails.insertAdjacentHTML('beforeend', `<div class="field col-2"><label>Площадь</label><input name="saleArea" placeholder="м²"></div>`);
       typeDetails.insertAdjacentHTML('beforeend', `<div class="field col-2"><label>Этаж</label><input name="saleFloor" placeholder="Этаж"></div>`);
-      typeDetails.insertAdjacentHTML('beforeend', `<div class="field col-4"><label>За сколько продать/сдать</label><div style="display:flex;gap:8px"><input name="salePrice" placeholder="Сумма или оставьте пусто" style="flex:1"><select name="salePriceUnit" style="width:110px"><option value="">— ед. —</option><option value="тыс">тыс</option><option value="млн">млн</option></select></div></div>`);
+      typeDetails.insertAdjacentHTML('beforeend', `<div class="field col-4"><label>За сколько продать/сдать</label><div style="display:flex;gap:8px"><input name="salePrice" placeholder="Сумма или оставьте ппусто" style="flex:1"><select name="salePriceUnit" style="width:110px"><option value="">— ед. —</option><option value="тыс">тыс</option><option value="млн">млн</option></select></div></div>`);
       typeDetails.insertAdjacentHTML('beforeend', `<div class="field col-4"><label><input type="checkbox" name="needValuation"> Требуется оценка</label></div>`);
       typeDetails.insertAdjacentHTML('beforeend', `<div class="field col-12"><label>Доп. примечания</label><input name="extraNotes" placeholder="Доп. примечания"></div>`);
     } else if(v==='Ипотека'){
       typeDetails.insertAdjacentHTML('beforeend', `<div class="field col-6"><label>Офис где требуется услуга</label><input name="mortOffice" placeholder="Офис"></div>`);
       typeDetails.insertAdjacentHTML('beforeend', `<div class="field col-6"><label>Улица (если не знают офис)</label><input name="mortStreet" placeholder="Улица"></div>`);
       typeDetails.insertAdjacentHTML('beforeend', `<div class="field col-12"><label>Доп. примечания</label><input name="mortNotes" placeholder="Доп. примечания"></div>`);
+    } else if(v==='Нестандартное'){
+      // Add the custom text field for "Нестандартное"
+      typeDetails.insertAdjacentHTML('beforeend', `<div class="field col-12"><label>Нестандартное описание</label><textarea name="customDescription" rows="4" placeholder="Опишите ситуацию подробно"></textarea></div>`);
     }
     // For "Покупка/аренда конкретного ОН" - no additional fields needed in typeDetails
   });
 
-  // Validation: address or article required
+  // Validation: address or article required (only for specific ON request type)
   function validateAddressOrArticle(form){
-    const address = form.address.value.trim();
-    const article = form.article.value.trim();
-    if(!address && !article){
-      toast('Заполните адрес или артикул');
-      return false;
+    const requestTypeValue = form.requestType.value;
+    // Skip validation for "Нестандартное" type
+    if(requestTypeValue === 'Нестандартное') {
+      // For "Нестандартное" only require client name and phone
+      return true;
+    }
+    
+    // Only validate address/article for "Покупка/аренда конкретного ОН"
+    if(requestTypeValue === 'Покупка/аренда конкретного ОН') {
+      const address = form.address.value.trim();
+      const article = form.article.value.trim();
+      if(!address && !article){
+        toast('Заполните адрес или артикул');
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Custom validation for "Нестандартное" option
+  function validateCustomRequest(form) {
+    const requestTypeValue = form.requestType.value;
+    if(requestTypeValue === 'Нестандартное') {
+      const customDescription = form.customDescription?.value.trim();
+      if(!customDescription) {
+        toast('Заполните нестандартное описание');
+        return false;
+      }
     }
     return true;
   }
@@ -254,6 +297,15 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function failureTemplate(p){
+    // Special handling for "Нестандартное" type
+    if(p.requestType === 'Нестандартное') {
+      return `Сбой ТНЛ
+Клиент: ${p.clientName || '—'}, ${p.clientPhone || '—'}
+Нестандартное описание: ${p.customDescription || '—'}
+Агент: ${p.agentName || '—'}
+Источник: ${p.source || '—'}`.trim();
+    }
+    
     const addrOrArt = p.address ? `Адрес: ${p.address}` : (p.article ? `Артикул: ${p.article}` : '');
     const price = p.price ? `${p.price} ${p.priceUnit || ''}` : '—';
     return `Сбой ТНЛ
@@ -269,6 +321,7 @@ ${addrOrArt}
   addToReportBtn.addEventListener('click', ()=>{
     if(!formFailure.checkValidity()){ formFailure.reportValidity(); return; }
     if(!validateAddressOrArticle(formFailure)) return;
+    if(!validateCustomRequest(formFailure)) return;
     const payload = getFailurePayload();
     reportData.push(payload);
     
@@ -277,20 +330,27 @@ ${addrOrArt}
     
     const div = document.createElement('div');
     div.className='report-item';
-    div.textContent = `${payload.clientName || ''} • ${payload.clientPhone || ''} • ${payload.address || payload.article || ''} • ${payload.agentName || ''}`;
+    // Update the display to show custom description for "Нестандартное" requests
+    const displayText = payload.requestType === 'Нестандартное' ? 
+      (payload.customDescription || '') : 
+      (payload.address || payload.article || '');
+    div.textContent = `${payload.clientName || ''} • ${payload.clientPhone || ''} • ${displayText} • ${payload.agentName || ''}`;
     reportList.appendChild(div);
     reportCount.textContent = `${reportData.length} записей`;
     toast('Запись добавлена в отчёт');
     // clear *all* fields in the form
     formFailure.reset();
     // hide conditional fields and clear dynamic area
-    bannerNameField.classList.add('hidden'); cityField.classList.add('hidden'); streetField.classList.add('hidden'); avitoLinkField.classList.add('hidden');
+    qs('#bannerNameField').classList.add('hidden'); 
+    qs('#cityField').classList.add('hidden'); 
+    qs('#streetField').classList.add('hidden'); 
+    qs('#avitoLinkField').classList.add('hidden');
     typeDetails.innerHTML='';
     
     // Reset to default values
     sourceSelect.value = 'ГородУлица';
     requestType.value = 'Покупка/аренда конкретного ОН';
-    cityField.classList.remove('hidden');
+    qs('#cityField').classList.remove('hidden');
     qs('#cityField label').textContent = 'Город и улица';
     qs('#cityField input').placeholder = 'Город и улица';
     qs('#cityField input').name = 'cityStreet';
@@ -337,6 +397,8 @@ ${addrOrArt}
       'Офис (ипотека)': r.mortOffice||'',
       'Улица (ипотека)': r.mortStreet||'',
       'Доп. примечания (ипотека)': r.mortNotes||'',
+      // Fields for Нестандартное
+      'Нестандартное описание': r.customDescription||'',
       // Fields for call sources
       'Название баннера': r.bannerName||'',
       'Город и улица': r.cityStreet||'',
@@ -447,14 +509,24 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
   qs('#copyNotFound').addEventListener('click', ()=>{
     const f = qs('#form-notfound');
+    if(!f.checkValidity()){ f.reportValidity(); return; }
     const addr = f.addr.value.trim(); const cost = f.cost.value.trim(); const unit = f.costUnit ? f.costUnit.value.trim() : f.costUnit; const link = f.link.value.trim();
+    // Get the role (client or agent) - default to "Клиент" if nothing selected
+    const role = qs('input[name="role"]:checked', f)?.value || 'Клиент';
+    
+    // Modify the main text based on who is calling
+    const roleText = role === 'Агент' ? 'Агента интересует ОН по адресу' : 'Клиента интересует ОН по адресу';
+    
     let text = `ОН не найден в ТНЛ
-Клиента интересует ОН по адресу ${addr || '—'} за ${cost ? (cost + ' ' + (unit||'')) : '—'}`;
+${roleText} ${addr || '—'} за ${cost ? (cost + ' ' + (unit||'')) : '—'}`;
     if(link) text += `
 Ссылка: ${link}`;
     copyToClipboard(text);
     // clear fields
     f.reset();
+    // Reset to default "Клиент" selection
+    const clientRadio = qs('input[name="role"][value="Клиент"]', f);
+    if(clientRadio) clientRadio.checked = true;
   });
 });
 
