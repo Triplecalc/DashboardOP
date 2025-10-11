@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Дашборд оператора</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="icons.png">
 </head>
 <body>
   <div class="container">
@@ -32,6 +33,7 @@
       <button class="tab" data-target="#tab2" role="tab" aria-selected="false">Отклик по вакансии</button>
       <button class="tab" data-target="#tab3" role="tab" aria-selected="false">Жалоба / Снять ОН</button>
       <button class="tab" data-target="#tab4" role="tab" aria-selected="false">ОН не найден</button>
+      <button class="tab" data-target="#tab5" role="tab" aria-selected="false">Исход</button>
     </nav>
 
     <!-- TAB 1 -->
@@ -119,6 +121,7 @@
             <option value="Аренда.Подбор">Аренда.Подбор</option>
             <option value="Продажа/сдача.Подбор">Продажа/сдача.Подбор</option>
             <option value="Ипотека">Ипотека</option>
+            <option value="Нестандартное">Нестандартное</option>
           </select>
         </div>
 
@@ -211,11 +214,26 @@
           <label>Ссылка (необязательно)</label>
           <input name="link" placeholder="https://www.avito.ru/...">
         </div>
+        
+        <!-- Added Client/Agent selector -->
+        <div class="field col-6">
+          <label class="required">Клиент или агент</label>
+          <div class="radio-row">
+            <label><input type="radio" name="role" value="Агент"> Агент</label>
+            <label><input type="radio" name="role" value="Клиент" checked> Клиент</label>
+          </div>
+        </div>
 
         <div class="col-12 actions">
           <button type="button" id="copyNotFound" class="btn primary">Сформировать текст и скопировать</button>
         </div>
       </form>
+    </section>
+
+    <!-- TAB 5 -->
+    <section class="card tab-panel" id="tab5" role="tabpanel" aria-hidden="true">
+      <h2>Исход</h2>
+      <p class="description">Скоро!</p>
     </section>
 
   </div>
