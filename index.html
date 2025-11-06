@@ -8,25 +8,43 @@
   <link rel="icon" type="image/png" href="icons.png">
 </head>
 <body>
+  <!-- Mobile Blocker -->
+  <div id="mobile-blocker" class="mobile-blocker">
+    <div class="mobile-blocker-content">
+      <div class="mobile-blocker-icon">🖥️</div>
+      <h2>Только для компьютеров</h2>
+      <p>Этот дашборд оптимизирован для работы на компьютере. Пожалуйста, откройте его на устройстве с большим экраном.</p>
+      <div class="mobile-blocker-details">
+        <p><strong>Почему так?</strong></p>
+        <ul>
+          <li>Сложные формы и таблицы</li>
+          <li>Экспорт в Excel</li>
+          <li>Множество элементов управления</li>
+        </ul>
+      </div>
+      <div class="mobile-blocker-footer">
+        <div class="footer-love">Сделано с любовью для Audiotele ❤</div>
+      </div>
+    </div>
+  </div>
+
   <div class="container">
     <header class="topbar">
-  <div class="brand">
-    <div class="logo">🎧</div>
-    <div>
-      <div class="site">Дашборд оператора</div>
-      <div class="subtitle">Оператор контактного центра</div>
-    </div>
-  </div>
-  <div style="display: flex; gap: 10px; align-items: center;">
-    <div class="quick-buttons" style="display: flex; gap: 8px;">
-      <button id="repeat-call" class="btn ghost" style="font-size: 13px; padding: 8px 12px;">Повторное обращение</button>
-      <button id="agent-not-contacted" class="btn ghost" style="font-size: 13px; padding: 8px 12px;">Агент не связался</button>
-    </div>
-    <button id="theme-toggle" class="theme-toggle btn ghost">🌙</button>
-  </div>
-</header>
-	
-	
+      <div class="brand">
+        <div class="logo">🎧</div>
+        <div>
+          <div class="site">Дашборд оператора</div>
+          <div class="subtitle">Оператор контактного центра</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <div class="quick-buttons" style="display: flex; gap: 8px;">
+          <button id="repeat-call" class="btn ghost" style="font-size: 13px; padding: 8px 12px;">Повторное обращение</button>
+          <button id="agent-not-contacted" class="btn ghost" style="font-size: 13px; padding: 8px 12px;">Агент не связался</button>
+        </div>
+        <button id="theme-toggle" class="theme-toggle btn ghost">🌙</button>
+      </div>
+    </header>
 
     <nav class="tabs" role="tablist">
       <button class="tab active" data-target="#tab1" role="tab" aria-selected="true">Сбой ТНЛ</button>
@@ -233,15 +251,85 @@
     <!-- TAB 5 -->
     <section class="card tab-panel" id="tab5" role="tabpanel" aria-hidden="true">
       <h2>Исход</h2>
-      <p class="description">Скоро!</p>
+      <p class="description">Шаблоны для обработки исходя звонков</p>
+      
+      <div class="outcome-tabs">
+        <button class="outcome-tab active" data-category="with-conditions">С условиями</button>
+        <button class="outcome-tab" data-category="without-conditions">Без условий</button>
+      </div>
+
+      <div class="outcome-content">
+        <!-- Шаблоны с условиями -->
+        <div class="outcome-category active" id="with-conditions">
+          <div class="outcome-item">
+            <h3>Агент не связался / Агент не связался. Соединили в звонке</h3>
+            <div class="condition-group">
+              <div class="condition-option">
+                <span class="condition-label">Агент НЕ ответил на звонок:</span>
+                <button class="template-btn" data-text="@Агент @РОП.​​​​ агент не связался. Агент не принял звонок.">
+                  Скопировать текст
+                </button>
+              </div>
+              <div class="condition-option">
+                <span class="condition-label">Агент ответил на звонок:</span>
+                <button class="template-btn" data-text="@Агент.​​​​ агент не связался. Соединили в звонке">
+                  Скопировать текст
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="outcome-item">
+            <h3>Агент не связался</h3>
+            <div class="condition-group">
+              <div class="condition-option">
+                <span class="condition-label">Клиент отказался от соединения:</span>
+                <button class="template-btn" data-text="@Агент @РОП.​​​​ Агент не связался. Клиент отказался от соединения в звонке">
+                  Скопировать текст
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Шаблоны без условий -->
+        <div class="outcome-category" id="without-conditions">
+          <div class="outcome-item">
+            <button class="template-btn full-width" data-text="@РОП объект не устроил, агент не предложил другие варианты. Требуется подбор аналогичных объектов.">
+              <strong>Агент связался, нужен подбор объекта</strong>
+            </button>
+          </div>
+
+          <div class="outcome-item">
+            <button class="template-btn full-width" data-text="@РОП описать жалобу клиента. Клиент просит поменять агента. Объект актуален">
+              <strong>Агент хамил, заменить агента</strong>
+            </button>
+          </div>
+
+          <div class="outcome-item">
+            <button class="template-btn full-width" data-text="@РОП клиента интересует ипотека. Агент не рассказал про ипотечные программы Самолет Плюс.">
+              <strong>Ипотека</strong>
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
 
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <a href="https://forms.yandex.ru/u/690cb47b49af477ad4e763ec" target="_blank" class="footer-link">
+          Отправить обращение
+        </a>
+        <div class="footer-love">Сделано с любовью для Audiotele ❤</div>
+      </div>
+    </footer>
   </div>
 
   <div id="toast"></div>
 	
- <!-- Yandex.Metrika counter -->
-<script type="text/javascript">
+  <!-- Yandex.Metrika counter -->
+  <script type="text/javascript">
     (function(m,e,t,r,i,k,a){
         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
         m[i].l=1*new Date();
@@ -250,9 +338,9 @@
     })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105145824', 'ym');
 
     ym(105145824, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
-</script>
-<noscript><div><img src="https://mc.yandex.ru/watch/105145824" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
+  </script>
+  <noscript><div><img src="https://mc.yandex.ru/watch/105145824" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+  <!-- /Yandex.Metrika counter -->
 	
   <!-- SheetJS for Excel export (CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
