@@ -30,7 +30,7 @@ function qsa(s,root=document){return [...root.querySelectorAll(s)]}
 function toast(msg){const t=qs('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
 function copyToClipboard(text){navigator.clipboard?.writeText(text).then(()=>toast('Скопировано в буфер обмена')).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('Скопировано')})}
 
-// Tabs with smooth transition
+  // Tabs with smooth transition
 document.addEventListener('DOMContentLoaded', function() {
   const tabs = qsa('.tab');
   const tabContainer = qs('.tabs');
@@ -64,11 +64,12 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   tabs.forEach(tab => tab.addEventListener('click', () => {
+    // УДАЛИТЕ этот блок кода полностью:
     // Special handling for the "Исход" tab
-    if (tab.dataset.target === '#tab5') {
-      toast('Скоро!');
-      return;
-    }
+    // if (tab.dataset.target === '#tab5') {
+    //   toast('Скоро!');
+    //   return;
+    // }
     
     // Remove active class from all tabs
     tabs.forEach(t => t.classList.remove('active'));
@@ -528,6 +529,76 @@ ${roleText} ${addr || '—'} за ${cost ? (cost + ' ' + (unit||'')) : '—'}`;
     const clientRadio = qs('input[name="role"][value="Клиент"]', f);
     if(clientRadio) clientRadio.checked = true;
   });
+});
+
+// TAB 5 outcome templates
+document.addEventListener('DOMContentLoaded', function() {
+  // Outcome tabs switching
+  const outcomeTabs = qsa('.outcome-tab');
+  const outcomeCategories = qsa('.outcome-category');
+  
+  outcomeTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Remove active class from all tabs and categories
+      outcomeTabs.forEach(t => t.classList.remove('active'));
+      outcomeCategories.forEach(c => c.classList.remove('active'));
+      
+      // Add active class to clicked tab and corresponding category
+      tab.classList.add('active');
+      const categoryId = tab.dataset.category;
+      qs(`#${categoryId}`).classList.add('active');
+    });
+  });
+  
+  // Template buttons functionality
+  const templateButtons = qsa('.template-btn');
+  templateButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const text = button.dataset.text;
+      copyToClipboard(text);
+    });
+  });
+});
+
+// Mobile device detection and blocking
+document.addEventListener('DOMContentLoaded', function() {
+  function isMobileDevice() {
+    // Check screen size
+    if (window.innerWidth <= 1024) return true;
+    
+    // Check screen height (for tablets in portrait mode)
+    if (window.innerHeight <= 600) return true;
+    
+    // Check for touch device
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+      return true;
+    }
+    
+    // Check user agent for mobile devices
+    const userAgent = navigator.userAgent.toLowerCase();
+    const mobileKeywords = [
+      'mobile', 'android', 'iphone', 'ipad', 'ipod', 'blackberry', 
+      'windows phone', 'webos', 'opera mini', 'iemobile'
+    ];
+    
+    return mobileKeywords.some(keyword => userAgent.includes(keyword));
+  }
+
+  // Show mobile blocker if detected
+  if (isMobileDevice()) {
+    const mobileBlocker = qs('#mobile-blocker');
+    if (mobileBlocker) {
+      mobileBlocker.style.display = 'flex';
+    }
+    
+    // Prevent any interaction with hidden content
+    document.addEventListener('touchstart', function(e) {
+      if (isMobileDevice()) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, { passive: false });
+  }
 });
 
 // Quick action buttons
